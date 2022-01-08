@@ -7,8 +7,8 @@
 // @match        *://yz.chsi.com.cn/sytj/tj/qecx.html*
 // @grant        unsafeWindow
 // @license      GPL-3.0
-// @homepageURL  https://github.com/invobzvr/tmjs.toys/tree/main/yz_tj
-// @supportURL   https://github.com/invobzvr/tmjs.toys/issues
+// @homepageURL  https://github.com/invobzvr/invotoys.js/tree/main/yz_tj
+// @supportURL   https://github.com/invobzvr/invotoys.js/issues
 // ==/UserScript==
 
 (function () {

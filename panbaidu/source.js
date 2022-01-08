@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         Custom pbd
+// @name         Custom panbaidu
 // @namespace    https://github.com/invobzvr
 // @version      0.1
 // @description
@@ -8,8 +8,8 @@
 // @grant        unsafeWindow
 // @grant        GM_getValue
 // @grant        GM_setValue
-// @homepageURL  https://github.com/invobzvr/tmjs.toys
-// @supportURL   https://github.com/invobzvr/tmjs.toys/issues
+// @homepageURL  https://github.com/invobzvr/invotoys.js/tree/main/panbaidu
+// @supportURL   https://github.com/invobzvr/invotoys.js/issues
 // @license      GPL-3.0
 // ==/UserScript==
 

@@ -10,8 +10,8 @@
 // @grant        GM_getValue
 // @grant        GM_setValue
 // @license      GPL-3.0
-// @homepageURL  https://github.com/invobzvr/tmjs.toys/tree/main/bilishare
-// @supportURL   https://github.com/invobzvr/tmjs.toys/issues
+// @homepageURL  https://github.com/invobzvr/invotoys.js/tree/main/bilishare
+// @supportURL   https://github.com/invobzvr/invotoys.js/issues
 // ==/UserScript==
 
 (function () {
