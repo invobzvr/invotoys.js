@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Custom aliyundrive
 // @namespace    https://github.com/invobzvr
-// @version      1.0
+// @version      1.1
 // @description  阿里云直链导出
 // @author       invobzvr
 // @match        *://www.aliyundrive.com/drive/*
@@ -11,7 +11,7 @@
 // @connect      127.0.0.1
 // @connect      localhost
 // @connect      *
-// @require      https://cdn.jsdelivr.net/npm/sweetalert2
+// @require      https://cdn.jsdelivr.net/npm/sweetalert2@11
 // @homepageURL  https://github.com/invobzvr/invotoys.js/tree/main/aliyundrive
 // @supportURL   https://github.com/invobzvr/invotoys.js/issues
 // @license      GPL-3.0
@@ -52,6 +52,7 @@
         },
         install: async function () {
             history.pushState = that.HOOK.H_PUSHSTATE;
+            addEventListener('PUSHSTATE', that.onPushState);
             that.rk = `__reactFiber$${Object.keys(await that.wait('#root', '_reactRootContainer')).find(ii => ii.startsWith('__reactContainer$')).split('$')[1]}`;
             that.tbmo = new MutationObserver(that.tbmc);
             that.init();
