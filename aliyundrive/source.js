@@ -2,7 +2,7 @@
 // @name         Custom aliyundrive
 // @name:zh      Custom aliyundrive
 // @namespace    https://github.com/invobzvr
-// @version      1.2
+// @version      1.3
 // @description  阿里云直链导出
 // @author       invobzvr
 // @match        *://www.aliyundrive.com/drive/*
@@ -79,7 +79,7 @@
             }
         },
         ddmmc: function ([mr]) {
-            let ddm = mr.addedNodes.length && mr.target.querySelector('[class*=dropdown-menu--]');
+            let ddm = mr.addedNodes.length && mr.addedNodes[0].querySelector('[class*=dropdown-menu--]');
             ddm && that.listModel && that.mmmo.observe(ddm, { attributes: true, attributeFilter: ['class'] });
         },
         mmmc: function ([mr]) {
