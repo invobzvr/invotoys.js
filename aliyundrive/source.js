@@ -1,7 +1,8 @@
 // ==UserScript==
 // @name         Custom aliyundrive
+// @name:zh      Custom aliyundrive
 // @namespace    https://github.com/invobzvr
-// @version      1.1
+// @version      1.2
 // @description  阿里云直链导出
 // @author       invobzvr
 // @match        *://www.aliyundrive.com/drive/*
