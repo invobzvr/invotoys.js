@@ -54,24 +54,58 @@
             history.pushState = that.HOOK.H_PUSHSTATE;
             addEventListener('PUSHSTATE', that.onPushState);
             that.rk = `__reactFiber$${Object.keys(await that.wait('#root', '_reactRootContainer')).find(ii => ii.startsWith('__reactContainer$')).split('$')[1]}`;
-            that.tbmo = new MutationObserver(that.tbmc);
+            that.tbwmo = new MutationObserver(that.tbwmc);
+            that.ddmmo = new MutationObserver(that.ddmmc);
+            that.ddmmo.observe(document.body, { childList: true });
+            that.mmmo = new MutationObserver(that.mmmc);
             that.init();
         },
         init: async function () {
-            that.listModel = (await that.wait('[class^=node-list--]'))[that.rk].return.memoizedProps.listModel;
-            that.tbmo.observe(document.querySelector('[class^=page-content--]'), { childList: true });
+            that.listModel = (await that.wait('[class*=node-list--]'))[that.rk].return.memoizedProps.listModel;
+            that.tbwmo.observe(document.querySelector('[class*=page-content--]'), { childList: true });
         },
-        tbmc: function ([mr]) {
-            if (mr.addedNodes.length && (that.tbel = mr.addedNodes[0].querySelector('[class^=toolbar-wrapper]'))) {
-                let btn = that.tbel.firstChild;
-                that.tbel.insertAdjacentHTML('afterbegin', '<div style="background:#fff;height:30px;margin-left:8px;width:.1px"></div>');
-                let dlBtn = that.tbel.insertAdjacentElement('afterbegin', btn.cloneNode(true)),
-                    a2Btn = that.tbel.insertAdjacentElement('afterbegin', btn.cloneNode(true));
+        tbwmc: function ([mr]) {
+            if (mr.addedNodes.length && (that.tbwel = mr.addedNodes[0].querySelector('[class*=toolbar-wrapper]'))) {
+                let btn = that.tbwel.firstChild;
+                that.tbwel.insertAdjacentHTML('afterbegin', '<div style="background:#fff;height:30px;margin-left:8px;width:.1px"></div>');
+                let dlBtn = that.tbwel.insertAdjacentElement('afterbegin', btn.cloneNode(true)),
+                    a2Btn = that.tbwel.insertAdjacentElement('afterbegin', btn.cloneNode(true));
                 dlBtn.title = 'Download';
-                dlBtn.addEventListener('click', that.download);
+                dlBtn.addEventListener('click', () => that.download(that.listModel.selectedItems, that.normal));
                 a2Btn.title = 'Aria2';
-                a2Btn.addEventListener('click', that.aria2);
+                a2Btn.addEventListener('click', () => that.download(that.listModel.selectedItems, that.aria2, () => [...that.listModel.selectedIds].forEach(that.listModel.removeSelect)));
                 a2Btn.addEventListener('contextmenu', evt => (evt.preventDefault(), that.configa2(true)));
+            }
+        },
+        ddmmc: function ([mr]) {
+            let ddm = mr.addedNodes.length && mr.target.querySelector('[class*=dropdown-menu--]');
+            ddm && that.listModel && that.mmmo.observe(ddm, { attributes: true, attributeFilter: ['class'] });
+        },
+        mmmc: function ([mr]) {
+            let el = mr.target;
+            if (el.className.includes('-prepare')) {
+                let props = el[that.rk].child.memoizedProps,
+                    list = props.fileModel ? [props.fileModel] : props.fileListModel ? props.fileListModel.selectedItems : null;
+                if (!list) {
+                    return;
+                }
+                let dlBtn, a2Btn,
+                    ul = el.firstChild;
+                if (!el.querySelector('[custom]')) {
+                    let btn = ul.firstChild;
+                    ul.insertAdjacentHTML('afterbegin', '<li class="ant-dropdown-menu-item-divider" custom></li>');
+                    dlBtn = ul.insertAdjacentElement('afterbegin', btn.cloneNode(true));
+                    dlBtn.setAttribute('custom', 'normal')
+                    dlBtn.querySelector('[class*=menu-name--]').innerText = 'Download';
+                    a2Btn = ul.insertAdjacentElement('afterbegin', btn.cloneNode(true));
+                    a2Btn.setAttribute('custom', 'aria2')
+                    a2Btn.querySelector('[class*=menu-name--]').innerText = 'Aria2';
+                } else {
+                    dlBtn = ul.querySelector('[custom=normal]');
+                    a2Btn = ul.querySelector('[custom=aria2]');
+                }
+                dlBtn.onclick = () => (document.body.dispatchEvent(new MouseEvent('mousedown', { bubbles: true })), that.download(list, that.normal));
+                a2Btn.onclick = () => (document.body.dispatchEvent(new MouseEvent('mousedown', { bubbles: true })), that.download(list, that.aria2));
             }
         },
         onPushState: function (evt) {
@@ -79,22 +113,25 @@
                 !that.listModel && that.init();
             } else {
                 that.listModel = null;
-                that.tbmo.disconnect();
+                that.tbwmo.disconnect();
             }
         },
-        download: async function () {
-            let selected = that.listModel.selectedItems;
-            selected.length !== (selected = selected.filter(ii => ii.type == 'file')).length && await Toast.fire({
+        download: async function (list, func, callback) {
+            list.length !== (list = list.filter(ii => ii.type == 'file')).length && await Toast.fire({
                 icon: 'warning',
                 title: 'Folders are skipped',
+                timer: 1e3,
             });
-            if (selected.length === 1) {
-                location.href = selected[0].downloadUrl;
+            list.length && (await func(list), callback && callback());
+        },
+        normal: function (list) {
+            if (list.length === 1) {
+                location.href = list[0].downloadUrl;
             } else {
                 Swal.fire({
                     title: 'Urls',
                     input: 'textarea',
-                    inputValue: selected.map(ii => ii.downloadUrl).join('\n'),
+                    inputValue: list.map(ii => ii.downloadUrl).join('\n'),
                     inputAttributes: {
                         style: `height:${window.innerHeight * .5}px;white-space:nowrap`,
                     },
@@ -102,7 +139,7 @@
                 });
             }
         },
-        aria2: async function () {
+        aria2: async function (list) {
             if (!that.a2config.remember) {
                 if (!await that.configa2()) {
                     return Toast.fire({
@@ -111,11 +148,6 @@
                     });
                 }
             }
-            let selected = that.listModel.selectedItems;
-            selected.length !== (selected = selected.filter(ii => ii.type == 'file')).length && Toast.fire({
-                icon: 'warning',
-                title: 'Folders are skipped',
-            });
             let res = await that.xhr({
                 method: 'post',
                 responseType: 'json',
@@ -124,7 +156,7 @@
                     id: 'INVOTOYS',
                     jsonrpc: '2.0',
                     method: 'system.multicall',
-                    params: [selected.map(ii => ({
+                    params: [list.map(ii => ({
                         methodName: 'aria2.addUri',
                         params: [[ii.downloadUrl], {
                             dir: that.a2config.dir,
@@ -134,10 +166,10 @@
                     }))],
                 }),
             }).catch(err => err);
-            Toast.fire(res.status == 200 ? ([...that.listModel.selectedIds].forEach(that.listModel.removeSelect), {
+            Toast.fire(res.status == 200 ? {
                 icon: 'success',
                 title: 'Sended successfully',
-            }) : {
+            } : {
                 icon: 'error',
                 title: 'Failed to connect to Aria2',
                 text: res.error || '',
