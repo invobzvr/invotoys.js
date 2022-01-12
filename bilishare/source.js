@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Custom bilishare
 // @namespace    https://github.com/invobzvr
-// @version      0.1
+// @version      0.2
 // @description  B站(bilibili)大会员共享
 // @author       invobzvr
 // @match        *://www.bilibili.com/bangumi/play/*
@@ -18,10 +18,23 @@
     const ORI_XHRO = XMLHttpRequest.prototype.open;
 
     XMLHttpRequest.prototype.open = function () {
-        if (arguments[1].startsWith('https://api.bilibili.com/pgc/player/web/playurl') && access_key) {
-            let url = new URL(arguments[1]);
+        let url = arguments[1],
+            idx = url.indexOf('api.bilibili.com/pgc/player/web/playurl');
+        if (idx !== -1 && idx < 9 && access_key) {
+            url.startsWith('//') && (url = url.replace('//', 'https://'));
+            url = new URL(url);
             url.searchParams.append('access_key', access_key);
             arguments[1] = url;
+            this.addEventListener('readystatechange', () => {
+                if (this.readyState !== 4) {
+                    return;
+                }
+                let ret = JSON.parse(this.responseText);
+                if (ret.code === -10403) {
+                    GM_deleteValue('access_key');
+                    alert('"access_key" may have expired');
+                }
+            });
         };
         return ORI_XHRO.apply(this, arguments);
     }
@@ -42,7 +55,7 @@
         let ep_id = location.pathname.match('\/play\/ep(\\d+)')[1];
         await proxyIV();
         bangumiCallNext(`${ep_id}.`);
-        bangumiCallNext(ep_id);
+        let iid = setInterval(() => (location.pathname.endsWith('.') && (clearInterval(iid), bangumiCallNext(ep_id))), 100);
     }
 
     let access_key = GM_getValue('access_key');
