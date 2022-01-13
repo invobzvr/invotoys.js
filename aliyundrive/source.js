@@ -2,10 +2,10 @@
 // @name         Custom aliyundrive
 // @name:zh      Custom aliyundrive
 // @namespace    https://github.com/invobzvr
-// @version      1.3
+// @version      1.4
 // @description  阿里云直链导出
 // @author       invobzvr
-// @match        *://www.aliyundrive.com/drive/*
+// @match        *://www.aliyundrive.com/drive*
 // @grant        GM_getValue
 // @grant        GM_setValue
 // @grant        GM_xmlhttpRequest
@@ -105,9 +105,13 @@
                     dlBtn = ul.querySelector('[custom=normal]');
                     a2Btn = ul.querySelector('[custom=aria2]');
                 }
-                dlBtn.onclick = () => (document.body.dispatchEvent(new MouseEvent('mousedown', { bubbles: true })), that.download(list, that.normal));
-                a2Btn.onclick = () => (document.body.dispatchEvent(new MouseEvent('mousedown', { bubbles: true })), that.download(list, that.aria2));
+                dlBtn.onclick = () => (that.closeMenu(), that.download(list, that.normal));
+                a2Btn.onclick = () => (that.closeMenu(), that.download(list, that.aria2));
+                a2Btn.oncontextmenu = evt => (evt.preventDefault(), evt.stopPropagation(), that.closeMenu(), that.configa2(true));
             }
+        },
+        closeMenu: function () {
+            setTimeout(() => document.body.dispatchEvent(new MouseEvent('mousedown', { bubbles: true })));
         },
         onPushState: function (evt) {
             if (evt.detail === '/drive/' || evt.detail.startsWith('/drive/folder')) {
@@ -141,18 +145,23 @@
             }
         },
         aria2: async function (list) {
+            let a2config;
             if (!that.a2config.remember) {
-                if (!await that.configa2()) {
+                let ret = await that.configa2();
+                if (ret.isConfirmed) {
+                    a2config = ret.value;
+                } else {
                     return Toast.fire({
                         icon: 'info',
                         title: 'Canceled',
                     });
                 }
             }
+            !a2config && (a2config = that.a2config);
             let res = await that.xhr({
                 method: 'post',
                 responseType: 'json',
-                url: `http://${that.a2config.host}:${that.a2config.port}/jsonrpc`,
+                url: `http://${a2config.host}:${a2config.port}/jsonrpc`,
                 data: JSON.stringify({
                     id: 'INVOTOYS',
                     jsonrpc: '2.0',
@@ -160,7 +169,7 @@
                     params: [list.map(ii => ({
                         methodName: 'aria2.addUri',
                         params: [[ii.downloadUrl], {
-                            dir: that.a2config.dir,
+                            dir: a2config.dir,
                             referer: 'https://www.aliyundrive.com/',
                             'user-agent': navigator.userAgent,
                         }],
@@ -188,7 +197,7 @@
                 preConfirm: () => Object.fromEntries(new FormData(Swal.getHtmlContainer().firstChild).entries()),
             });
             ret.isConfirmed && (save || ret.value.remember) && GM_setValue('a2config', that.a2config = ret.value);
-            return ret.isConfirmed;
+            return ret;
         },
         ORI: {
             H_PUSHSTATE: History.prototype.pushState,
