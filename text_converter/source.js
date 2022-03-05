@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Text Converter
 // @namespace    https://github.com/invobzvr
-// @version      0.1
+// @version      0.2
 // @description  Convert selected text to HTML Element
 // @author       invobzvr
 // @match        *://*/*
@@ -12,15 +12,25 @@
 // ==/UserScript==
 
 (function () {
-    const SLCN = window.getSelection(),
+    function pointOf(evt) {
+        let pageX, pageY;
+        isMobile && (evt = evt.changedTouches[0]);
+        pageX = evt.pageX;
+        pageY = evt.pageY + 10;
+        return { pageX, pageY };
+    }
+
+    const isMobile = navigator.userAgent.includes('Mobile'),
+        EVTS = [DOWN_EVT, UP_EVT] = isMobile ? ['touchstart', 'touchend'] : ['mousedown', 'mouseup'],
+        SLCN = window.getSelection(),
         EL_TYPE = {
             Image: 'img',
             Video: 'video',
             Link: 'a',
         };
     let ctnr, rng;
-    addEventListener('mousedown', () => ctnr && (ctnr = ctnr.remove()));
-    addEventListener('mouseup', evt => {
+    addEventListener(DOWN_EVT, () => ctnr && (ctnr = ctnr.remove()));
+    addEventListener(UP_EVT, evt => {
         const range = SLCN.getRangeAt(0);
         if (rng === range) {
             return;
@@ -29,11 +39,12 @@
         if (!text) {
             return;
         }
+        const { pageX, pageY } = pointOf(evt);
         ctnr = document.body.insertAdjacentElement('beforeend', document.createElement('div'));
         ctnr.className = 'tc_ctnr';
-        ctnr.style = `top:${evt.pageY + 10}px;left:${evt.pageX}px`;
-        ctnr.onmousedown = ctnr.onmouseup = evt => evt.stopPropagation();
-        ctnr.onclick = evt => {
+        ctnr.style = `top:${pageY}px;left:${pageX}px`;
+        EVTS.forEach(name => ctnr.addEventListener(name, evt => evt.stopPropagation()));
+        ctnr.addEventListener('click', evt => {
             let el = document.createElement(EL_TYPE[evt.target.innerText]);
             switch (evt.target.innerText) {
                 case 'Image':
@@ -48,7 +59,7 @@
             rng.surroundContents(el);
             rng.collapse();
             ctnr && (ctnr = ctnr.remove());
-        }
+        });
         ctnr.innerHTML = `<div>Image</div><div>Video</div><div>Link</div>`;
     });
 
