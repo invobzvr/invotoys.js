@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Text Converter
 // @namespace    https://github.com/invobzvr
-// @version      0.2
+// @version      0.3
 // @description  Convert selected text to HTML Element
 // @author       invobzvr
 // @match        *://*/*
@@ -28,15 +28,10 @@
             Video: 'video',
             Link: 'a',
         };
-    let ctnr, rng;
+    let ctnr, rng, cr, text;
     addEventListener(DOWN_EVT, () => ctnr && (ctnr = ctnr.remove()));
     addEventListener(UP_EVT, evt => {
-        const range = SLCN.getRangeAt(0);
-        if (rng === range) {
-            return;
-        }
-        const text = (rng = range).toString();
-        if (!text) {
+        if (!SLCN.rangeCount || rng === (cr = SLCN.getRangeAt(0)) || !(text = (rng = cr).toString())) {
             return;
         }
         const { pageX, pageY } = pointOf(evt);
@@ -67,6 +62,7 @@
     background: #fff;
     border-radius: 5px;
     box-shadow: 0 0 5px #0009;
+    color: #000;
     font-size: 12px;
     position: absolute;
     user-select: none;
