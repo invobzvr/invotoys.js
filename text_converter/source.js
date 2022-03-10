@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Text Converter
 // @namespace    https://github.com/invobzvr
-// @version      0.3
+// @version      0.4
 // @description  Convert selected text to HTML Element
 // @author       invobzvr
 // @match        *://*/*
@@ -64,11 +64,14 @@
     box-shadow: 0 0 5px #0009;
     color: #000;
     font-size: 12px;
+    line-height: initial;
+    overflow: hidden;
     position: absolute;
     user-select: none;
+    z-index: 999;
 }
 .tc_ctnr>div {
-    padding: 3px 5px;
+    padding: 5px 7px;
     transition: .2s;
 }
 .tc_ctnr>div:hover {
