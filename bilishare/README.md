@@ -1,4 +1,4 @@
-# Custom bilishare
+# [Custom bilishare](https://github.com/invobzvr/invotoys.js/tree/main/bilishare)
 
 ### Description
 B站(bilibili)大会员共享

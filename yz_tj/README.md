@@ -1,4 +1,4 @@
-# Custom yz_tj
+# [Custom yz_tj](https://github.com/invobzvr/invotoys.js/tree/main/yz_tj)
 
 ### Description
 研招网调剂增强
