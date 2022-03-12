@@ -2,7 +2,7 @@
 // @name         Custom aliyundrive
 // @name:zh      Custom aliyundrive
 // @namespace    https://github.com/invobzvr
-// @version      1.4
+// @version      1.5
 // @description  阿里云直链导出
 // @author       invobzvr
 // @match        *://www.aliyundrive.com/drive*
@@ -131,12 +131,12 @@
         },
         normal: function (list) {
             if (list.length === 1) {
-                location.href = list[0].downloadUrl;
+                location.href = that.urlOf(list[0]);
             } else {
                 Swal.fire({
                     title: 'Urls',
                     input: 'textarea',
-                    inputValue: list.map(ii => ii.downloadUrl).join('\n'),
+                    inputValue: list.map(ii => that.urlOf(ii)).join('\n'),
                     inputAttributes: {
                         style: `height:${window.innerHeight * .5}px;white-space:nowrap`,
                     },
@@ -168,7 +168,7 @@
                     method: 'system.multicall',
                     params: [list.map(ii => ({
                         methodName: 'aria2.addUri',
-                        params: [[ii.downloadUrl], {
+                        params: [[that.urlOf(ii)], {
                             dir: a2config.dir,
                             referer: 'https://www.aliyundrive.com/',
                             'user-agent': navigator.userAgent,
@@ -184,6 +184,9 @@
                 title: 'Failed to connect to Aria2',
                 text: res.error || '',
             });
+        },
+        urlOf: function (model) {
+            return model.downloadUrl || model.url;
         },
         configa2: async function (save) {
             let ret = await Swal.fire({
