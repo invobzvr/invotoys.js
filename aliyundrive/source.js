@@ -2,7 +2,7 @@
 // @name         Custom aliyundrive
 // @name:zh      Custom aliyundrive
 // @namespace    https://github.com/invobzvr
-// @version      1.5
+// @version      1.6
 // @description  阿里云直链导出
 // @author       invobzvr
 // @match        *://www.aliyundrive.com/drive*
@@ -158,27 +158,32 @@
                 }
             }
             !a2config && (a2config = that.a2config);
+            let data = {
+                id: 'INVOTOYS',
+                jsonrpc: '2.0',
+                method: 'system.multicall',
+                params: [list.map(ii => ({
+                    methodName: 'aria2.addUri',
+                    params: [[that.urlOf(ii)], {
+                        dir: a2config.dir,
+                        referer: 'https://www.aliyundrive.com/',
+                        'user-agent': navigator.userAgent,
+                    }],
+                }))],
+            };
+            if (a2config.token) {
+                let token = `token:${a2config.token}`;
+                data.params[0].forEach(ii => ii.params.unshift(token));
+            }
             let res = await that.xhr({
                 method: 'post',
                 responseType: 'json',
                 url: `http://${a2config.host}:${a2config.port}/jsonrpc`,
-                data: JSON.stringify({
-                    id: 'INVOTOYS',
-                    jsonrpc: '2.0',
-                    method: 'system.multicall',
-                    params: [list.map(ii => ({
-                        methodName: 'aria2.addUri',
-                        params: [[that.urlOf(ii)], {
-                            dir: a2config.dir,
-                            referer: 'https://www.aliyundrive.com/',
-                            'user-agent': navigator.userAgent,
-                        }],
-                    }))],
-                }),
+                data: JSON.stringify(data),
             }).catch(err => err);
             Toast.fire(res.status == 200 ? {
                 icon: 'success',
-                title: 'Sended successfully',
+                title: 'Sent successfully',
             } : {
                 icon: 'error',
                 title: 'Failed to connect to Aria2',
@@ -195,9 +200,10 @@
     <div><span>Host</span><input class="swal2-input" name="host" value="${that.a2config.host}"></div>
     <div><span>Port</span><input class="swal2-input" name="port" value="${that.a2config.port}"></div>
     <div><span>Dir</span><input class="swal2-input" name="dir" value="${that.a2config.dir}"></div>
+    <div><span>Token</span><input class="swal2-input" name="token" value="${that.a2config.token || ''}"></div>
     <div><label><span>Remember</span><input name="remember" type="checkbox"${that.a2config.remember ? ' checked' : ''}></label></div>
 </form>`,
-                preConfirm: () => Object.fromEntries(new FormData(Swal.getHtmlContainer().firstChild).entries()),
+                preConfirm: () => Object.fromEntries(new FormData(Swal.getHtmlContainer().firstChild)),
             });
             ret.isConfirmed && (save || ret.value.remember) && GM_setValue('a2config', that.a2config = ret.value);
             return ret;
