@@ -2,7 +2,7 @@
 // @name         Custom aliyundrive
 // @name:zh      Custom aliyundrive
 // @namespace    https://github.com/invobzvr
-// @version      1.6
+// @version      1.7
 // @description  阿里云直链导出
 // @author       invobzvr
 // @match        *://www.aliyundrive.com/drive*
@@ -13,6 +13,7 @@
 // @connect      localhost
 // @connect      *
 // @require      https://cdn.jsdelivr.net/npm/sweetalert2@11
+// @require      https://greasyfork.org/scripts/443030-hook-js/code/Hookjs.js?version=1037826
 // @homepageURL  https://github.com/invobzvr/invotoys.js/tree/main/aliyundrive
 // @supportURL   https://github.com/invobzvr/invotoys.js/issues
 // @license      GPL-3.0
@@ -52,14 +53,22 @@
             });
         },
         install: async function () {
-            history.pushState = that.HOOK.H_PUSHSTATE;
-            addEventListener('PUSHSTATE', that.onPushState);
+            that.inithook();
+            addEventListener('pushstate', that.onPushState);
             that.rk = `__reactFiber$${Object.keys(await that.wait('#root', '_reactRootContainer')).find(ii => ii.startsWith('__reactContainer$')).split('$')[1]}`;
             that.tbwmo = new MutationObserver(that.tbwmc);
             that.ddmmo = new MutationObserver(that.ddmmc);
             that.ddmmo.observe(document.body, { childList: true });
             that.mmmo = new MutationObserver(that.mmmc);
             that.init();
+        },
+        inithook: function () {
+            History.prototype.pushState.hook({
+                scope: History.prototype,
+                before: function () {
+                    dispatchEvent(new CustomEvent('pushstate', { detail: arguments[2] }));
+                },
+            });
         },
         init: async function () {
             that.listModel = (await that.wait('[class*=node-list--]'))[that.rk].return.memoizedProps.listModel;
@@ -207,15 +216,6 @@
             });
             ret.isConfirmed && (save || ret.value.remember) && GM_setValue('a2config', that.a2config = ret.value);
             return ret;
-        },
-        ORI: {
-            H_PUSHSTATE: History.prototype.pushState,
-        },
-        HOOK: {
-            H_PUSHSTATE: function () {
-                dispatchEvent(new CustomEvent('PUSHSTATE', { detail: arguments[2] }));
-                return that.ORI.H_PUSHSTATE.apply(this, arguments);
-            },
         },
     };
 

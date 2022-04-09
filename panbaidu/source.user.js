@@ -1,33 +1,35 @@
 // ==UserScript==
 // @name         Custom panbaidu
 // @namespace    https://github.com/invobzvr
-// @version      0.1
+// @version      0.2
 // @description
 // @author       invobzvr
 // @match        *://pan.baidu.com/*
 // @grant        unsafeWindow
 // @grant        GM_getValue
 // @grant        GM_setValue
+// @require      https://greasyfork.org/scripts/443030-hook-js/code/Hookjs.js?version=1037826
 // @homepageURL  https://github.com/invobzvr/invotoys.js/tree/main/panbaidu
 // @supportURL   https://github.com/invobzvr/invotoys.js/issues
 // @license      GPL-3.0
 // ==/UserScript==
 
-(function() {
+(function () {
     // Cookie BDCLND
 
-    const ORI = {
-            STR_REPLACE: String.prototype.replace,
-            XHR_OPEN: XMLHttpRequest.prototype.open,
-        },
-        HOOK = {
-            STR_REPLACE: function() {
+    function inithook() {
+        String.prototype.replace.hook({
+            scope: String.prototype,
+            before: function () {
                 if ([...arguments].join() == '/\\w/g,*') {
                     return this;
                 }
-                return ORI.STR_REPLACE.apply(this, arguments);
-            },
-            XHR_OPEN: function() {
+            }
+        });
+
+        XMLHttpRequest.prototype.open.hook({
+            scope: XMLHttpRequest.prototype,
+            before: function () {
                 if (arguments[1].includes('/share/verify') && !sup) {
                     this.addEventListener('readystatechange', () => {
                         if (this.readyState !== 4) {
@@ -41,16 +43,15 @@
                         });
                     });
                 }
-                return ORI.XHR_OPEN.apply(this, arguments);
-            },
-        };
+            }
+        });
+    }
 
     let surl, sup,
         href = new URL(location.href),
         ac = document.querySelector('#accessCode');
     if (href.pathname === '/share/init') {
-        String.prototype.replace = HOOK.STR_REPLACE;
-        XMLHttpRequest.prototype.open = HOOK.XHR_OPEN;
+        inithook();
         surl = href.searchParams.get('surl');
         ac.autocomplete = 'off';
     } else if (href.pathname.startsWith('/s/1')) {
