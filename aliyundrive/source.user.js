@@ -2,7 +2,7 @@
 // @name         Custom aliyundrive
 // @name:zh      Custom aliyundrive
 // @namespace    https://github.com/invobzvr
-// @version      1.7
+// @version      1.8
 // @description  阿里云直链导出
 // @author       invobzvr
 // @match        *://www.aliyundrive.com/drive*
@@ -175,6 +175,7 @@
                     methodName: 'aria2.addUri',
                     params: [[that.urlOf(ii)], {
                         dir: a2config.dir,
+                        out: ii.name,
                         referer: 'https://www.aliyundrive.com/',
                         'user-agent': navigator.userAgent,
                     }],
@@ -187,7 +188,7 @@
             let res = await that.xhr({
                 method: 'post',
                 responseType: 'json',
-                url: `http://${a2config.host}:${a2config.port}/jsonrpc`,
+                url: `http${a2config.https ? 's' : ''}://${a2config.host}:${a2config.port}/jsonrpc`,
                 data: JSON.stringify(data),
             }).catch(err => err);
             Toast.fire(res.status == 200 ? {
@@ -210,7 +211,10 @@
     <div><span>Port</span><input class="swal2-input" name="port" value="${that.a2config.port}"></div>
     <div><span>Dir</span><input class="swal2-input" name="dir" value="${that.a2config.dir}"></div>
     <div><span>Token</span><input class="swal2-input" name="token" value="${that.a2config.token || ''}"></div>
-    <div><label><span>Remember</span><input name="remember" type="checkbox"${that.a2config.remember ? ' checked' : ''}></label></div>
+    <div>
+        <label><span>Https</span><input name="https" type="checkbox"${that.a2config.https ? ' checked' : ''}></label>\u3000
+        <label><span>Remember</span><input name="remember" type="checkbox"${that.a2config.remember ? ' checked' : ''}></label>
+    </div>
 </form>`,
                 preConfirm: () => Object.fromEntries(new FormData(Swal.getHtmlContainer().firstChild)),
             });
