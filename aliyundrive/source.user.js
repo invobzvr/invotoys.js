@@ -9,6 +9,7 @@
 // @grant        GM_getValue
 // @grant        GM_setValue
 // @grant        GM_xmlhttpRequest
+// @grant        unsafeWindow
 // @connect      127.0.0.1
 // @connect      localhost
 // @connect      *
@@ -20,6 +21,9 @@
 // ==/UserScript==
 
 (function () {
+    const windowStorage = unsafeWindow.localStorage;
+    const userToken = JSON.parse(windowStorage.getItem('token'));
+    const accessToken = userToken.token_type +' '+ userToken.access_token
     const Toast = Swal.mixin({
         position: 'top-end',
         showConfirmButton: false,
@@ -31,7 +35,53 @@
             tst.addEventListener('mouseleave', Swal.resumeTimer);
         }
     });
+    const PathInfo = {
+        cache : {},
+        req : async (option)=>{
+            return new Promise((resolve, reject) => {
+                option.onload = function(response) {
+                    if(response.status == 200){
+                        resolve(JSON.parse(response.responseText))
+                    }else{
+                        reject(response.status)
+                    }
+                };
+                option.onerror = function(error) {
+                    reject(error);
+                }
+                GM_xmlhttpRequest(option)
+            })
+        },
+        getPath: async (driveId, fileId) => {
+            let data={}
+            let path=''
+            while(fileId !== 'root'){
+                let key = driveId +'-'+ fileId
+                if(PathInfo.cache.hasOwnProperty(key)){
+                    data = PathInfo.cache[key]
+                }else{
+                    data = await PathInfo.req({
+                        method: 'POST',
+                        url: 'https://api.aliyundrive.com/v2/file/get',
+                        data: JSON.stringify({"drive_id":driveId,"file_id":fileId}),
+                        headers: {
+                            'authorization': accessToken,
+                            'content-type': 'application/json;charset=UTF-8',
+                            'origin': 'https://www.aliyundrive.com',
+                            'referer': 'https://www.aliyundrive.com/',
+                            'user-agent': navigator.userAgent
+                        }
+                    })
+                    PathInfo.cache[key] = data
+                }
+                path = data.name +'/'+ path
 
+                fileId = data.parent_file_id
+            }
+
+            return path
+        }
+    }
     const that = {
         a2config: GM_getValue('a2config', {
             host: '127.0.0.1',
@@ -167,6 +217,7 @@
                 }
             }
             !a2config && (a2config = that.a2config);
+            let curPath = await PathInfo.getPath(list[0].driveId,list[0].parentFileId)
             let data = {
                 id: 'INVOTOYS',
                 jsonrpc: '2.0',
@@ -174,7 +225,7 @@
                 params: [list.map(ii => ({
                     methodName: 'aria2.addUri',
                     params: [[that.urlOf(ii)], {
-                        dir: a2config.dir,
+                        dir: a2config.dir +'/' + curPath,
                         out: ii.name,
                         referer: 'https://www.aliyundrive.com/',
                         'user-agent': navigator.userAgent,
