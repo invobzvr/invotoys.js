@@ -2,10 +2,11 @@
 // @name         Custom aliyundrive
 // @name:zh      Custom aliyundrive
 // @namespace    https://github.com/invobzvr
-// @version      1.10
+// @version      1.11
 // @description  阿里云直链导出
 // @author       invobzvr
 // @match        *://www.aliyundrive.com/drive*
+// @match        *://www.aliyundrive.com/s/*
 // @grant        GM_getValue
 // @grant        GM_setValue
 // @grant        GM_xmlhttpRequest
@@ -95,7 +96,7 @@
             let el = mr.target;
             if (el.className.includes('-prepare')) {
                 let props = el[that.rk].child.memoizedProps,
-                    list = props.fileModel ? [props.fileModel] : props.fileListModel ? props.fileListModel.selectedItems : null;
+                    list = location.pathname.startsWith('/s/') ? [props.model] : props.fileModel ? [props.fileModel] : props.fileListModel ? props.fileListModel.selectedItems : null;
                 if (!list) {
                     return;
                 }
