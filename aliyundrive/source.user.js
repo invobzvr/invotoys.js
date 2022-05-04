@@ -2,7 +2,7 @@
 // @name         Custom aliyundrive
 // @name:zh      Custom aliyundrive
 // @namespace    https://github.com/invobzvr
-// @version      1.9
+// @version      1.10
 // @description  阿里云直链导出
 // @author       invobzvr
 // @match        *://www.aliyundrive.com/drive*
@@ -171,15 +171,15 @@
                 id: 'INVOTOYS',
                 jsonrpc: '2.0',
                 method: 'system.multicall',
-                params: await Promise.all([list.map(ii => ({
+                params: [await Promise.all(list.map(async ii => ({
                     methodName: 'aria2.addUri',
-                    params: [[that.urlOf(ii)], {
+                    params: [[await that.urlOf(ii)], {
                         dir: a2config.dir,
                         out: ii.name,
                         referer: 'https://www.aliyundrive.com/',
                         'user-agent': navigator.userAgent,
                     }],
-                }))]),
+                })))],
             };
             if (a2config.token) {
                 let token = `token:${a2config.token}`;
