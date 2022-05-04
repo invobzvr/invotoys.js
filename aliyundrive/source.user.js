@@ -2,7 +2,7 @@
 // @name         Custom aliyundrive
 // @name:zh      Custom aliyundrive
 // @namespace    https://github.com/invobzvr
-// @version      1.8
+// @version      1.9
 // @description  阿里云直链导出
 // @author       invobzvr
 // @match        *://www.aliyundrive.com/drive*
@@ -138,14 +138,14 @@
             });
             list.length && (await func(list), callback && callback());
         },
-        normal: function (list) {
+        normal: async function (list) {
             if (list.length === 1) {
-                location.href = that.urlOf(list[0]);
+                location.href = await that.urlOf(list[0]);
             } else {
                 Swal.fire({
                     title: 'Urls',
                     input: 'textarea',
-                    inputValue: list.map(ii => that.urlOf(ii)).join('\n'),
+                    inputValue: (await Promise.all(list.map(ii => that.urlOf(ii)))).join('\n'),
                     inputAttributes: {
                         style: `height:${window.innerHeight * .5}px;white-space:nowrap`,
                     },
@@ -171,7 +171,7 @@
                 id: 'INVOTOYS',
                 jsonrpc: '2.0',
                 method: 'system.multicall',
-                params: [list.map(ii => ({
+                params: await Promise.all([list.map(ii => ({
                     methodName: 'aria2.addUri',
                     params: [[that.urlOf(ii)], {
                         dir: a2config.dir,
@@ -179,7 +179,7 @@
                         referer: 'https://www.aliyundrive.com/',
                         'user-agent': navigator.userAgent,
                     }],
-                }))],
+                }))]),
             };
             if (a2config.token) {
                 let token = `token:${a2config.token}`;
@@ -200,8 +200,8 @@
                 text: res.error || '',
             });
         },
-        urlOf: function (model) {
-            return model.downloadUrl || model.url;
+        urlOf: async function (model) {
+            return model.downloadUrl || model.url || await model.getDownloadUrl();
         },
         configa2: async function (save) {
             let ret = await Swal.fire({
