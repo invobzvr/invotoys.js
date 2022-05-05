@@ -7,6 +7,7 @@
 // @author       invobzvr
 // @match        *://www.aliyundrive.com/drive*
 // @match        *://www.aliyundrive.com/s/*
+// @grant        GM_addStyle
 // @grant        GM_getValue
 // @grant        GM_setValue
 // @grant        GM_xmlhttpRequest
@@ -54,6 +55,72 @@
             });
         },
         install: async function () {
+            GM_addStyle(`.that-backdrop {
+    background: #0006;
+    bottom: 0;
+    display: grid;
+    left: 0;
+    overflow: auto;
+    position: fixed;
+    right: 0;
+    top: 0;
+    z-index: 200;
+}
+.that-modal {
+    align-self: center;
+    background: #fff;
+    border-radius: 5px;
+    justify-self: center;
+    margin: 20px;
+    padding: 0 30px;
+    user-select: none;
+}
+.that-title {
+    font-size: 30px;
+    margin: 20px;
+    text-align: center;
+}
+.that-input-group {
+    display: table;
+    margin-bottom: 10px;
+}
+.that-label {
+    display: table-cell;
+    font-size: 16px;
+    padding: 0 10px;
+    text-align: center;
+    width: 100%;
+}
+.that-input {
+    font-size: 20px;
+    padding: 5px 9px;
+}
+.that-input[type=checkbox] {
+    vertical-align: middle;
+}
+.that-options {
+    margin: auto;
+    width: 80%;
+}
+.that-option-item {
+    margin-left: 12px;
+    white-space: nowrap;
+}
+.that-options .that-label {
+    font-size: 13px;
+    padding: 0 3px 0 0;
+}
+.that-actions {
+    margin: 20px;
+    text-align: center;
+}
+.that-button {
+    background: #09f;
+    border-radius: 5px;
+    border: none;
+    color: #fff;
+    padding: 7px 18px;
+}`);
             that.inithook();
             addEventListener('pushstate', that.onPushState);
             that.rk = `__reactFiber$${Object.keys(await that.wait('#root', '_reactRootContainer')).find(ii => ii.startsWith('__reactContainer$')).split('$')[1]}`;
@@ -158,8 +225,8 @@
             let a2config;
             if (!that.a2config.remember) {
                 let ret = await that.configa2();
-                if (ret.isConfirmed) {
-                    a2config = ret.value;
+                if (ret) {
+                    a2config = ret;
                 } else {
                     return Toast.fire({
                         icon: 'info',
@@ -205,21 +272,39 @@
             return model.downloadUrl || model.url || await model.getDownloadUrl();
         },
         configa2: async function (save) {
-            let ret = await Swal.fire({
-                title: 'Aria2 Config',
-                html: `<form>
-    <div><span>Host</span><input class="swal2-input" name="host" value="${that.a2config.host}"></div>
-    <div><span>Port</span><input class="swal2-input" name="port" value="${that.a2config.port}"></div>
-    <div><span>Dir</span><input class="swal2-input" name="dir" value="${that.a2config.dir}"></div>
-    <div><span>Token</span><input class="swal2-input" name="token" value="${that.a2config.token || ''}"></div>
-    <div>
-        <label><span>Https</span><input name="https" type="checkbox"${that.a2config.https ? ' checked' : ''}></label>\u3000
-        <label><span>Remember</span><input name="remember" type="checkbox"${that.a2config.remember ? ' checked' : ''}></label>
+            let ret = await new Promise(res => {
+                let modal = document.body.appendChild(document.createElement('div'));
+                modal.className = 'that-backdrop';
+                modal.innerHTML = `<div class="that-modal">
+    <div class="that-title">Aria2 Config</div>
+    <form>
+        <div class="that-input-group"><span class="that-label">Host</span><input class="that-input" name="host" value="${that.a2config.host}"></div>
+        <div class="that-input-group"><span class="that-label">Port</span><input class="that-input" name="port" value="${that.a2config.port}"></div>
+        <div class="that-input-group"><span class="that-label">Dir</span><input class="that-input" name="dir" value="${that.a2config.dir}"></div>
+        <div class="that-input-group"><span class="that-label">Token</span><input class="that-input" name="token" value="${that.a2config.token || ''}"></div>
+        <div class="that-options">
+            <label class="that-option-item"><span class="that-label">Https</span><input class="that-input" name="https" type="checkbox"${that.a2config.https ? ' checked' : ''}></label>
+            <label class="that-option-item"><span class="that-label">Remember</span><input class="that-input" name="remember" type="checkbox"${that.a2config.remember ? ' checked' : ''}></label>
+        </div>
+    </form>
+    <div class="that-actions">
+        <button class="that-button">OK</button>
     </div>
-</form>`,
-                preConfirm: () => Object.fromEntries(new FormData(Swal.getHtmlContainer().firstChild)),
+</div>`;
+                modal.onclick = evt => {
+                    switch (evt.target.className) {
+                        case 'that-backdrop':
+                            modal.remove();
+                            res();
+                            break;
+                        case 'that-button':
+                            modal.remove();
+                            res(Object.fromEntries(new FormData(modal.querySelector('form'))));
+                            break;
+                    }
+                }
             });
-            ret.isConfirmed && (save || ret.value.remember) && GM_setValue('a2config', that.a2config = ret.value);
+            ret && (save || ret.remember) && GM_setValue('a2config', that.a2config = ret);
             return ret;
         },
     };
