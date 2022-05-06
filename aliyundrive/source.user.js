@@ -22,18 +22,6 @@
 // ==/UserScript==
 
 (function () {
-    const Toast = Swal.mixin({
-        position: 'top-end',
-        showConfirmButton: false,
-        timer: 3e3,
-        timerProgressBar: true,
-        toast: true,
-        didOpen: tst => {
-            tst.addEventListener('mouseenter', Swal.stopTimer);
-            tst.addEventListener('mouseleave', Swal.resumeTimer);
-        }
-    });
-
     const that = {
         a2config: GM_getValue('a2config', {
             host: '127.0.0.1',
@@ -77,7 +65,7 @@
 }
 .that-title {
     font-size: 30px;
-    margin: 20px;
+    padding: 20px;
     text-align: center;
 }
 .that-input-group {
@@ -120,6 +108,46 @@
     border: none;
     color: #fff;
     padding: 7px 18px;
+}
+.that-toastbox {
+    display: grid;
+    min-width: 360px;
+    padding: 10px;
+    position: fixed;
+    right: 0;
+    top: 0;
+    width: 30%;
+    z-index: 201;
+}
+.that-toast-item {
+    background: #09f;
+    border-radius: 7px;
+    box-shadow: 0 2px 10px #0005;
+    color: #fff;
+    margin-bottom: 10px;
+    padding: 10px 10px 15px 10px;
+    opacity: 0;
+    transition: .2s;
+    transform: scale(.8);
+}
+.that-toast-item.in {
+    opacity: 1;
+    transform: scale(1);
+}
+.that-toast-item.success {
+    background: #00a65a;
+}
+.that-toast-item.info {
+    background: #ffa150;
+}
+.that-toast-item.error {
+    background: #dd4b39;
+}
+.that-toast-item .that-title,
+.that-toast-item .that-label {
+    padding: 0 10px;
+    text-align: left;
+    word-break: break-word;
 }`);
             that.inithook();
             addEventListener('pushstate', that.onPushState);
@@ -199,8 +227,8 @@
             }
         },
         download: async function (list, func, callback) {
-            list.length !== (list = list.filter(ii => ii.type == 'file')).length && await Toast.fire({
-                icon: 'warning',
+            list.length !== (list = list.filter(ii => ii.type == 'file')).length && that.toast({
+                type: 'info',
                 title: 'Folders are skipped',
                 timer: 1e3,
             });
@@ -228,8 +256,8 @@
                 if (ret) {
                     a2config = ret;
                 } else {
-                    return Toast.fire({
-                        icon: 'info',
+                    return that.toast({
+                        type: 'info',
                         title: 'Canceled',
                     });
                 }
@@ -259,13 +287,13 @@
                 url: `http${a2config.https ? 's' : ''}://${a2config.host}:${a2config.port}/jsonrpc`,
                 data: JSON.stringify(data),
             }).catch(err => err);
-            Toast.fire(res.status == 200 ? {
-                icon: 'success',
+            that.toast(res.status == 200 ? {
+                type: 'success',
                 title: 'Sent successfully',
             } : {
-                icon: 'error',
+                type: 'error',
                 title: 'Failed to connect to Aria2',
-                text: res.error || '',
+                text: res.error,
             });
         },
         urlOf: async function (model) {
@@ -313,6 +341,17 @@
             }
             ctnr[innerHTML instanceof Element ? 'insertAdjacentElement' : 'insertAdjacentHTML']('beforeend', innerHTML);
             return ctnr;
+        },
+        toast: function (options) {
+            let tst = document.createElement('div'),
+                ctnr = that.modal('that-toastbox', tst);
+            tst.className = `that-toast-item ${options.type || ''}`;
+            tst.innerHTML = `<div class="that-title">${options.title || ''}</div><div class="that-label">${options.text || ''}</div>`;
+            setTimeout(() => tst.classList.add('in'), 10);
+            options.time !== null && setTimeout(() => {
+                tst.classList.remove('in');
+                tst.addEventListener('transitionend', () => (tst.remove(), !ctnr.childElementCount && ctnr.remove()));
+            }, options.time || 3e3);
         },
     };
 
