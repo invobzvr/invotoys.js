@@ -2,7 +2,7 @@
 // @name         Custom aliyundrive
 // @name:zh      Custom aliyundrive
 // @namespace    https://github.com/invobzvr
-// @version      1.11
+// @version      1.12
 // @description  阿里云直链导出
 // @author       invobzvr
 // @match        *://www.aliyundrive.com/drive*
@@ -14,7 +14,6 @@
 // @connect      127.0.0.1
 // @connect      localhost
 // @connect      *
-// @require      https://cdn.jsdelivr.net/npm/sweetalert2@11
 // @require      https://greasyfork.org/scripts/443030-hook-js/code/Hookjs.js?version=1037826
 // @homepageURL  https://github.com/invobzvr/invotoys.js/tree/main/aliyundrive
 // @supportURL   https://github.com/invobzvr/invotoys.js/issues
@@ -238,15 +237,15 @@
             if (list.length === 1) {
                 location.href = await that.urlOf(list[0]);
             } else {
-                Swal.fire({
-                    title: 'Urls',
-                    input: 'textarea',
-                    inputValue: (await Promise.all(list.map(ii => that.urlOf(ii)))).join('\n'),
-                    inputAttributes: {
-                        style: `height:${window.innerHeight * .5}px;white-space:nowrap`,
-                    },
-                    width: '60%',
-                });
+                let ctnr = that.modal('that-backdrop', `<div class="that-modal" style="width:50%">
+    <div class="that-title">Urls</div>
+    <textarea style="height:${window.innerHeight * .5}px;width:100%;white-space:nowrap"></textarea>
+    <div class="that-actions">
+        <button class="that-button">OK</button>
+    </div>
+</div>`);
+                ctnr.querySelector('textarea').value = (await Promise.all(list.map(ii => that.urlOf(ii)))).join('\n');
+                ctnr.onclick = evt => ['that-backdrop', 'that-button'].includes(evt.target.className) && ctnr.remove();
             }
         },
         aria2: async function (list) {
