@@ -273,9 +273,7 @@
         },
         configa2: async function (save) {
             let ret = await new Promise(res => {
-                let modal = document.body.appendChild(document.createElement('div'));
-                modal.className = 'that-backdrop';
-                modal.innerHTML = `<div class="that-modal">
+                let ctnr = that.modal('that-backdrop', `<div class="that-modal">
     <div class="that-title">Aria2 Config</div>
     <form>
         <div class="that-input-group"><span class="that-label">Host</span><input class="that-input" name="host" value="${that.a2config.host}"></div>
@@ -290,22 +288,31 @@
     <div class="that-actions">
         <button class="that-button">OK</button>
     </div>
-</div>`;
-                modal.onclick = evt => {
+</div>`);
+                ctnr.onclick = evt => {
                     switch (evt.target.className) {
                         case 'that-backdrop':
-                            modal.remove();
+                            ctnr.remove();
                             res();
                             break;
                         case 'that-button':
-                            modal.remove();
-                            res(Object.fromEntries(new FormData(modal.querySelector('form'))));
+                            ctnr.remove();
+                            res(Object.fromEntries(new FormData(ctnr.querySelector('form'))));
                             break;
                     }
                 }
             });
             ret && (save || ret.remember) && GM_setValue('a2config', that.a2config = ret);
             return ret;
+        },
+        modal: function (ctnrName, innerHTML) {
+            let ctnr = document.querySelector(`.${ctnrName}`);
+            if (!ctnr) {
+                ctnr = document.body.appendChild(document.createElement('div'));
+                ctnr.className = ctnrName;
+            }
+            ctnr[innerHTML instanceof Element ? 'insertAdjacentElement' : 'insertAdjacentHTML']('beforeend', innerHTML);
+            return ctnr;
         },
     };
 
