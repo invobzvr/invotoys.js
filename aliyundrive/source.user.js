@@ -93,9 +93,9 @@
     margin-left: 12px;
     white-space: nowrap;
 }
-.that-options .that-label {
+.that-option-item .that-label {
     font-size: 13px;
-    padding: 0 3px 0 0;
+    padding: 0 0 0 3px;
 }
 .that-actions {
     margin: 20px;
@@ -308,8 +308,8 @@
         <div class="that-input-group"><span class="that-label">Dir</span><input class="that-input" name="dir" value="${that.a2config.dir}"></div>
         <div class="that-input-group"><span class="that-label">Token</span><input class="that-input" name="token" value="${that.a2config.token || ''}"></div>
         <div class="that-options">
-            <label class="that-option-item"><span class="that-label">Https</span><input class="that-input" name="https" type="checkbox"${that.a2config.https ? ' checked' : ''}></label>
-            <label class="that-option-item"><span class="that-label">Remember</span><input class="that-input" name="remember" type="checkbox"${that.a2config.remember ? ' checked' : ''}></label>
+            <label class="that-option-item"><input class="that-input" name="https" type="checkbox"${that.a2config.https ? ' checked' : ''}><span class="that-label">Https</span></label>
+            <label class="that-option-item"><input class="that-input" name="remember" type="checkbox"${that.a2config.remember ? ' checked' : ''}><span class="that-label">Remember</span></label>
         </div>
     </form>
     <div class="that-actions">
