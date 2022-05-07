@@ -2,7 +2,7 @@
 // @name         Custom aliyundrive
 // @name:zh      Custom aliyundrive
 // @namespace    https://github.com/invobzvr
-// @version      1.12
+// @version      1.13
 // @description  阿里云直链导出
 // @author       invobzvr
 // @match        *://www.aliyundrive.com/drive*
@@ -90,7 +90,7 @@
     width: 80%;
 }
 .that-option-item {
-    margin-left: 12px;
+    margin-right: 12px;
     white-space: nowrap;
 }
 .that-option-item .that-label {
@@ -251,7 +251,14 @@
         aria2: async function (list) {
             let a2config;
             if (!that.a2config.remember) {
-                let ret = await that.configa2();
+                let ret = await that.configa2(false, ctnr => {
+                    let names = [...document.querySelectorAll('[class*=breadcrumb-item--]')];
+                    names = names.slice(1, names.length / 2).map(ii => ii.dataset.label);
+                    ctnr.querySelector('[name=dir]').insertAdjacentHTML('afterend', `<details>
+    <summary><label class="that-option-item"><input class="that-input" name="wds" type="checkbox"><span class="that-label">with directory structure</span></label></summary>
+    <input class="that-input" name="struct" value="${names.join('/')}">
+</details>`);
+                });
                 if (ret) {
                     a2config = ret;
                 } else {
@@ -262,6 +269,8 @@
                 }
             }
             !a2config && (a2config = that.a2config);
+            let dir = a2config.dir;
+            a2config.wds && (dir = `${dir}/${a2config.struct}`);
             let data = {
                 id: 'INVOTOYS',
                 jsonrpc: '2.0',
@@ -269,7 +278,7 @@
                 params: [await Promise.all(list.map(async ii => ({
                     methodName: 'aria2.addUri',
                     params: [[await that.urlOf(ii)], {
-                        dir: a2config.dir,
+                        dir: dir,
                         out: ii.name,
                         referer: 'https://www.aliyundrive.com/',
                         'user-agent': navigator.userAgent,
@@ -298,7 +307,7 @@
         urlOf: async function (model) {
             return model.downloadUrl || model.url || await model.getDownloadUrl();
         },
-        configa2: async function (save) {
+        configa2: async function (save, modify) {
             let ret = await new Promise(res => {
                 let ctnr = that.modal('that-backdrop', `<div class="that-modal">
     <div class="that-title">Aria2 Config</div>
@@ -316,6 +325,7 @@
         <button class="that-button">OK</button>
     </div>
 </div>`);
+                modify && modify(ctnr);
                 ctnr.onclick = evt => {
                     switch (evt.target.className) {
                         case 'that-backdrop':
