@@ -2,7 +2,7 @@
 // @name         Custom aliyundrive
 // @name:zh      Custom aliyundrive
 // @namespace    https://github.com/invobzvr
-// @version      1.13
+// @version      1.14
 // @description  阿里云直链导出
 // @author       invobzvr
 // @match        *://www.aliyundrive.com/drive*
@@ -255,7 +255,7 @@
                     let names = [...document.querySelectorAll('[class*=breadcrumb-item--]')];
                     names = names.slice(1, names.length / 2).map(ii => ii.dataset.label);
                     ctnr.querySelector('[name=dir]').insertAdjacentHTML('afterend', `<details>
-    <summary><label class="that-option-item"><input class="that-input" name="wds" type="checkbox"><span class="that-label">with directory structure</span></label></summary>
+    <summary><label class="that-option-item"><input class="that-input" name="wds" type="checkbox" onchange="this.closest('details').open = this.checked"><span class="that-label">with directory structure</span></label></summary>
     <input class="that-input" name="struct" value="${names.join('/')}">
 </details>`);
                 });
