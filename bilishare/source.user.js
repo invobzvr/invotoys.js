@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Custom bilishare
 // @namespace    https://github.com/invobzvr
-// @version      0.2
+// @version      0.3
 // @description  B站(bilibili)大会员共享
 // @author       invobzvr
 // @match        *://www.bilibili.com/bangumi/play/*
@@ -40,11 +40,15 @@
     }
 
     function proxyIV() {
+        let userState;
         return new Promise(resolve => {
             let iid = setInterval(() => {
                 if (typeof __INITIAL_STATE__.userState.vipInfo.isVip !== 'undefined') {
                     clearInterval(iid);
-                    __INITIAL_STATE__.userState.vipInfo.__defineGetter__('isVip', () => true);
+                    userState = Object.assign({}, __INITIAL_STATE__.userState);
+                    userState.vipInfo.isVip = true;
+                    Object.seal(userState);
+                    Object.defineProperty(__INITIAL_STATE__, 'userState', { get: () => userState });
                     resolve();
                 }
             }, 100);
@@ -52,8 +56,8 @@
     }
 
     async function init() {
-        let ep_id = location.pathname.match('\/play\/ep(\\d+)')[1];
         await proxyIV();
+        let ep_id = __INITIAL_STATE__.epInfo.id;
         bangumiCallNext(`${ep_id}.`);
         let iid = setInterval(() => (location.pathname.endsWith('.') && (clearInterval(iid), bangumiCallNext(ep_id))), 100);
     }
