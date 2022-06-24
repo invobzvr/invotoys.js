@@ -46,9 +46,8 @@
                 if (typeof __INITIAL_STATE__.userState.vipInfo.isVip !== 'undefined') {
                     clearInterval(iid);
                     userState = Object.assign({}, __INITIAL_STATE__.userState);
-                    userState.vipInfo.isVip = true;
-                    Object.seal(userState);
-                    Object.defineProperty(__INITIAL_STATE__, 'userState', { get: () => userState });
+                    Object.defineProperty(userState.vipInfo, 'isVip', { value: true });
+                    Object.defineProperty(__INITIAL_STATE__, 'userState', { value: userState });
                     resolve();
                 }
             }, 100);
