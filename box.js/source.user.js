@@ -30,12 +30,10 @@ const LIB_NAME = 'Box';
             this.params = params;
             this.build();
             this.register();
-            this.await = new Promise(resolve => this.resolve = resolve);
-        }
-
-        close(val) {
-            this.ctnr.remove();
-            this.resolve(val);
+            this.await = new Promise(resolve => this.close = ret => {
+                this.ctnr.remove();
+                resolve(ret);
+            });
         }
 
         build() {
