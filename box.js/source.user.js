@@ -234,7 +234,7 @@ const LIB_NAME = 'Box';
 }
 
 .box-toast-item .box-title,
-.box-toast-item .box-label {
+.box-toast-item .box-content {
     padding: 0 10px;
     text-align: left;
     word-break: break-word;
