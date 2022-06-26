@@ -27,7 +27,7 @@ const LIB_NAME = 'Box';
 
     class Box {
         constructor(params) {
-            this.params = params;
+            this.params = Object.assign({}, params);
             this.build();
             this.register();
             this.await = new Promise(resolve => this.close = async ret => {
@@ -35,7 +35,7 @@ const LIB_NAME = 'Box';
                 this.ctnr.remove();
                 resolve(ret);
             });
-            params.show !== false && this.show();
+            this.params.show !== false && this.show();
         }
 
         build() {
