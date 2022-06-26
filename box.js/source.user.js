@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Box.js
 // @namespace    https://github.com/invobzvr
-// @version      0.1
+// @version      0.2
 // @description  Box for modal
 // @author       invobzvr
 // @homepageURL  https://github.com/invobzvr/invotoys.js/tree/main/box.js
@@ -30,10 +30,12 @@ const LIB_NAME = 'Box';
             this.params = params;
             this.build();
             this.register();
-            this.await = new Promise(resolve => this.close = ret => {
+            this.await = new Promise(resolve => this.close = async ret => {
+                await this.hide();
                 this.ctnr.remove();
                 resolve(ret);
             });
+            params.show !== false && this.show();
         }
 
         build() {
@@ -69,6 +71,20 @@ const LIB_NAME = 'Box';
             });
         }
 
+        show() {
+            return new Promise(resolve => {
+                setTimeout(() => this.ctnr.classList.add('in'), 10);
+                this.ctnr.addEventListener('transitionend', resolve, { once: true });
+            });
+        }
+
+        hide() {
+            return new Promise(resolve => {
+                this.ctnr.classList.remove('in');
+                this.ctnr.addEventListener('transitionend', resolve, { once: true });
+            });
+        }
+
         then(onFulfilled) {
             return this.await.then(onFulfilled);
         }
@@ -79,10 +95,13 @@ const LIB_NAME = 'Box';
     bottom: 0;
     display: grid;
     left: 0;
+    opacity: 0;
     overflow: auto;
+    pointer-events: none;
     position: fixed;
     right: 0;
     top: 0;
+    transition: .2s;
     z-index: 200;
 }
 
@@ -93,7 +112,18 @@ const LIB_NAME = 'Box';
     justify-self: center;
     margin: 20px;
     padding: 0 30px;
+    transform: scale(.8);
+    transition: .2s;
     user-select: none;
+}
+
+.box-backdrop.in {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.box-backdrop.in .box-modal {
+    transform: scale(1);
 }
 
 .box-title {
