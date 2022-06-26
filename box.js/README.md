@@ -1,7 +1,7 @@
 # [Box.js](https://github.com/invobzvr/invotoys.js/tree/main/box.js)
 
 ### Description
-Box for modal
+Box for modal / toast
 
 ### Example
 ```js
