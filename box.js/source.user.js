@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Box.js
 // @namespace    https://github.com/invobzvr
-// @version      0.2
+// @version      0.3
 // @description  Box for modal
 // @author       invobzvr
 // @homepageURL  https://github.com/invobzvr/invotoys.js/tree/main/box.js
@@ -29,6 +29,7 @@ const LIB_NAME = 'Box';
         constructor(params) {
             this.params = Object.assign({}, params);
             this.build();
+            typeof this.params.didBuild === 'function' && this.params.didBuild(this.modal);
             this.register();
             this.await = new Promise(resolve => this.close = async ret => {
                 await this.hide();
