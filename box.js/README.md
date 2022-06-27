@@ -14,3 +14,12 @@ await new Box({
     },
 });
 ```
+```js
+const Toast = Box.mixin({
+    title: 'Demo Toast',
+    toast: true,
+    time: 3e3,
+});
+
+new Toast({ text: 'Hello, Toast!' });
+```
