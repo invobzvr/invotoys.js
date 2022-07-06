@@ -2,7 +2,7 @@
 
 |Name|Description|Date|
 |-|-|-|
-|[Box.js](https://github.com/invobzvr/invotoys.js/tree/main/box.js)|Box for modal|2022-06-25|
+|[Box.js](https://github.com/invobzvr/invotoys.js/tree/main/box.js)|Box for modal / toast|2022-06-25|
 |[Hook.js](https://github.com/invobzvr/invotoys.js/tree/main/hook.js)|Javascript function hook|[2022-03-14](https://greasyfork.org/zh-CN/scripts/443030)|
 |[Text Converter](https://github.com/invobzvr/invotoys.js/tree/main/text_converter)|将`选中文字`转换成`图片` / `视频` / `链接`|[2022-03-05](https://greasyfork.org/zh-CN/scripts/443031)|
 |[Custom aliyundrive](https://github.com/invobzvr/invotoys.js/tree/main/aliyundrive)|阿里云直链导出|[2022-01-08](https://greasyfork.org/zh-CN/scripts/438202)|

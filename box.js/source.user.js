@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         Box.js
 // @namespace    https://github.com/invobzvr
-// @version      0.3
-// @description  Box for modal
+// @version      0.4
+// @description  Box for modal / toast
 // @author       invobzvr
 // @homepageURL  https://github.com/invobzvr/invotoys.js/tree/main/box.js
 // @supportURL   https://github.com/invobzvr/invotoys.js/issues
@@ -32,16 +32,39 @@ const LIB_NAME = 'Box';
             typeof this.params.didBuild === 'function' && this.params.didBuild(this.modal);
             this.register();
             this.await = new Promise(resolve => this.close = async ret => {
-                await this.hide();
-                this.ctnr.remove();
                 resolve(ret);
+                await this.hide();
+                this[this.ctnr.childElementCount === 1 ? 'ctnr' : 'modal'].remove();
             });
+            if (this.params.toast) {
+                let time = this.params.time,
+                    bgc = {
+                        success: '#0a5',
+                        warning: '#fa0',
+                        error: '#f25',
+                    }[this.params.type];
+                Number.isFinite(time) && time > 0 && setTimeout(() => this.close(), time);
+                bgc && (this.modal.style.background = bgc);
+            }
             this.params.show !== false && this.show();
         }
 
+        static mixin(mixinParams) {
+            return class MixinBox extends this {
+                constructor(params) {
+                    super(Object.assign({}, mixinParams, params));
+                }
+            }
+        }
+
         build() {
-            this.ctnr = element('div', { className: 'box-backdrop' }, document.body);
-            this.modal = element('div', { className: 'box-modal' }, this.ctnr);
+            if (this.params.toast) {
+                this.ctnr = document.querySelector('.box-toaster') || element('div', { className: 'box-toaster' }, document.body);
+                this.modal = element('div', { className: 'box-toast-item' }, this.ctnr);
+            } else {
+                this.ctnr = element('div', { className: 'box-container' }, document.body);
+                this.modal = element('div', { className: 'box-modal' }, this.ctnr);
+            }
             element('div', {
                 className: 'box-title',
                 innerText: this.params.title,
@@ -51,6 +74,9 @@ const LIB_NAME = 'Box';
                 innerText: this.params.text,
                 innerHTML: this.params.html,
             }, this.modal);
+            if (this.params.toast) {
+                return;
+            }
             let actions = element('div', { className: 'box-actions' }, this.modal);
             Object.entries(this.params.actions || { OK: () => this.close() }).forEach(([key, val]) => element('button', {
                 className: 'box-button',
@@ -74,15 +100,17 @@ const LIB_NAME = 'Box';
 
         show() {
             return new Promise(resolve => {
-                setTimeout(() => this.ctnr.classList.add('in'), 10);
-                this.ctnr.addEventListener('transitionend', resolve, { once: true });
+                !this.params.toast && this.ctnr.classList.add('box-backdrop');
+                setTimeout(() => this.modal.classList.add('in'), 10);
+                this.modal.addEventListener('transitionend', resolve, { once: true });
             });
         }
 
         hide() {
             return new Promise(resolve => {
-                this.ctnr.classList.remove('in');
-                this.ctnr.addEventListener('transitionend', resolve, { once: true });
+                !this.params.toast && this.ctnr.classList.remove('box-backdrop');
+                this.modal.classList.remove('in');
+                this.modal.addEventListener('transitionend', resolve, { once: true });
             });
         }
 
@@ -91,12 +119,10 @@ const LIB_NAME = 'Box';
         }
     }
 
-    element('style', null, document.head).innerHTML = `.box-backdrop {
-    background: #0006;
+    element('style', null, document.head).innerHTML = `.box-container {
     bottom: 0;
     display: grid;
     left: 0;
-    opacity: 0;
     overflow: auto;
     pointer-events: none;
     position: fixed;
@@ -106,24 +132,27 @@ const LIB_NAME = 'Box';
     z-index: 200;
 }
 
+.box-backdrop {
+    background: #0006;
+    pointer-events: auto;
+}
+
 .box-modal {
     align-self: center;
     background: #fff;
     border-radius: 5px;
+    box-shadow: 0 3px 20px #0006;
     justify-self: center;
     margin: 20px;
+    opacity: 0;
     padding: 0 30px;
     transform: scale(.8);
     transition: .2s;
     user-select: none;
 }
 
-.box-backdrop.in {
+.box-modal.in {
     opacity: 1;
-    pointer-events: auto;
-}
-
-.box-backdrop.in .box-modal {
     transform: scale(1);
 }
 
@@ -184,6 +213,41 @@ const LIB_NAME = 'Box';
     font-size: 16px;
     margin: 5px;
     padding: 10px 18px;
+}
+
+.box-toaster {
+    display: grid;
+    min-width: 360px;
+    padding: 10px;
+    position: fixed;
+    right: 0;
+    top: 0;
+    width: 27%;
+    z-index: 201;
+}
+
+.box-toast-item {
+    background: #09f;
+    border-radius: 7px;
+    box-shadow: 0 2px 10px #0005;
+    color: #fff;
+    margin-bottom: 10px;
+    padding: 10px 10px 15px 10px;
+    opacity: 0;
+    transition: .2s;
+    transform: scale(.8);
+}
+
+.box-toast-item.in {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.box-toast-item .box-title,
+.box-toast-item .box-content {
+    padding: 0 10px;
+    text-align: left;
+    word-break: break-word;
 }`;
 
     return Box;
