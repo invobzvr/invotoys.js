@@ -32,9 +32,9 @@ const LIB_NAME = 'Box';
             typeof this.params.didBuild === 'function' && this.params.didBuild(this.modal);
             this.register();
             this.await = new Promise(resolve => this.close = async ret => {
+                resolve(ret);
                 await this.hide();
                 this[this.ctnr.childElementCount === 1 ? 'ctnr' : 'modal'].remove();
-                resolve(ret);
             });
             this.params.toast && this.params.time !== null && setTimeout(() => this.close(), this.params.time);
             this.params.show !== false && this.show();
