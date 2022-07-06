@@ -36,7 +36,16 @@ const LIB_NAME = 'Box';
                 await this.hide();
                 this[this.ctnr.childElementCount === 1 ? 'ctnr' : 'modal'].remove();
             });
-            this.params.toast && this.params.time !== null && setTimeout(() => this.close(), this.params.time);
+            if (this.params.toast) {
+                let time = this.params.time,
+                    bgc = {
+                        success: '#0a5',
+                        warning: '#fa0',
+                        error: '#f25',
+                    }[this.params.type];
+                Number.isFinite(time) && time > 0 && setTimeout(() => this.close(), time);
+                bgc && (this.modal.style.background = bgc);
+            }
             this.params.show !== false && this.show();
         }
 
