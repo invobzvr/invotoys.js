@@ -132,6 +132,7 @@ const LIB_NAME = 'Box';
     align-self: center;
     background: #fff;
     border-radius: 5px;
+    box-shadow: 0 3px 20px #0006;
     justify-self: center;
     margin: 20px;
     opacity: 0;
@@ -212,7 +213,7 @@ const LIB_NAME = 'Box';
     position: fixed;
     right: 0;
     top: 0;
-    width: 30%;
+    width: 27%;
     z-index: 201;
 }
 
