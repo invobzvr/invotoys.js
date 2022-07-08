@@ -2,7 +2,7 @@
 // @name         Custom aliyundrive
 // @name:zh      Custom aliyundrive
 // @namespace    https://github.com/invobzvr
-// @version      1.16
+// @version      1.17
 // @description  阿里云直链导出
 // @author       invobzvr
 // @match        *://www.aliyundrive.com/drive*
@@ -125,7 +125,7 @@
                 type: 'warning',
                 title: 'Folders are skipped',
             });
-            list.length && (await func(list), callback && callback());
+            list.length && await func(list) && callback && callback();
         },
         normal: async function (list) {
             if (list.length === 1) {
@@ -140,6 +140,7 @@
                     },
                 });
             }
+            return true;
         },
         aria2: async function (list) {
             let a2config;
@@ -155,10 +156,11 @@
                 if (ret) {
                     a2config = ret;
                 } else {
-                    return new that.Toast({
+                    new that.Toast({
                         type: 'warning',
-                        title: 'Canceled',
+                        title: 'Cancelled',
                     });
+                    return false;
                 }
             }
             !a2config && (a2config = that.a2config);
@@ -196,6 +198,7 @@
                 title: 'Failed to connect to Aria2',
                 text: res.error,
             });
+            return true;
         },
         urlOf: async function (model) {
             return model.downloadUrl || model.url || await model.getDownloadUrl();
