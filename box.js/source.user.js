@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Box.js
 // @namespace    https://github.com/invobzvr
-// @version      0.4
+// @version      0.5
 // @description  Box for modal / toast
 // @author       invobzvr
 // @homepageURL  https://github.com/invobzvr/invotoys.js/tree/main/box.js
@@ -100,8 +100,10 @@ const LIB_NAME = 'Box';
 
         show() {
             return new Promise(resolve => {
-                !this.params.toast && this.ctnr.classList.add('box-backdrop');
-                setTimeout(() => this.modal.classList.add('in'), 10);
+                setTimeout(() => {
+                    !this.params.toast && this.ctnr.classList.add('box-backdrop');
+                    this.modal.classList.add('in');
+                }, 10);
                 this.modal.addEventListener('transitionend', resolve, { once: true });
             });
         }
