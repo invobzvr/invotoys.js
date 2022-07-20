@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Custom bilishare
 // @namespace    https://github.com/invobzvr
-// @version      0.3
+// @version      0.4
 // @description  B站(bilibili)大会员共享
 // @author       invobzvr
 // @match        *://www.bilibili.com/bangumi/play/*
@@ -63,6 +63,26 @@
 
     let access_key = GM_getValue('access_key');
     access_key && init();
+    addEventListener('contextmenu', evt => {
+        if (!evt.target.classList.contains('btn-pay')) {
+            return;
+        }
+        evt.preventDefault();
+        let val = prompt('Input "access_key":', access_key);
+        if (!val) {
+            return;
+        } else if (val === 'delete') {
+            GM_deleteValue('access_key');
+            console.log('[access_key] deleted');
+        } else if (val.length === 32) {
+            GM_setValue('access_key', val);
+            access_key = val;
+            init();
+            console.log('[access_key] setted');
+        } else {
+            alert('Invalid "access_key"');
+        }
+    });
     Object.defineProperty(unsafeWindow, 'access_key', {
         get: () => access_key,
         set: val => {
@@ -77,5 +97,5 @@
                 console.log('[access_key] deleted');
             }
         }
-    })
+    });
 })();
