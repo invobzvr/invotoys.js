@@ -8,7 +8,7 @@
 // @grant        unsafeWindow
 // @grant        GM_getValue
 // @grant        GM_setValue
-// @require      https://greasyfork.org/scripts/443030-hook-js/code/Hookjs.js?version=1037826
+// @require      https://greasyfork.org/scripts/443030-hook-js/code/Hookjs.js
 // @homepageURL  https://github.com/invobzvr/invotoys.js/tree/main/panbaidu
 // @supportURL   https://github.com/invobzvr/invotoys.js/issues
 // @license      GPL-3.0
