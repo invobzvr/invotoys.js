@@ -23,19 +23,43 @@
         ORI[name] = that;
         params.scope[name] = function () {
             if (typeof params.before === 'function') {
-                const ret = params.before.apply(this, arguments);
+                const ret = params.before.apply(this, [arguments]);
                 if (ret !== undefined) {
                     return ret;
                 }
             }
             let val = that.apply(this, arguments);
             if (typeof params.after === 'function') {
-                const ret = params.after.apply(this, [val, arguments]);
+                const ret = params.after.apply(this, [arguments, val]);
                 if (ret !== undefined) {
                     val = ret;
                 }
             }
             return val;
         }
+    }
+
+    Object.prototype.hook = function (prop, params) {
+        typeof params === 'function' && (params = {
+            before: params,
+        });
+        const ori = this[prop];
+        this[prop] = function () {
+            if (typeof params.before === 'function') {
+                const ret = params.before.apply(this, [arguments]);
+                if (ret !== undefined) {
+                    return ret;
+                }
+            }
+            let val = ori.apply(this, arguments);
+            if (typeof params.after === 'function') {
+                const ret = params.after.apply(this, [arguments, val]);
+                if (ret !== undefined) {
+                    val = ret;
+                }
+            }
+            return val;
+        }
+        this[prop].__ORI__ = ori;
     }
 })();
