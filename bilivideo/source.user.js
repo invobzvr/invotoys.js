@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Custom bilivideo
 // @namespace    https://github.com/invobzvr
-// @version      0.1
+// @version      0.2
 // @description  B站(bilibili)视频扩展
 // @author       invobzvr
 // @match        *://www.bilibili.com/video/*
@@ -12,6 +12,8 @@
 // ==/UserScript==
 
 (function () {
+    __INITIAL_STATE__.sections.forEach(iSection => iSection.episodes.sort((a, b) => a.cid - b.cid));
+
     let vue, ct, el,
         app = document.querySelector('#app');
     Object.defineProperty(app, '__vue__', {
