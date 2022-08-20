@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Hook.js
 // @namespace    https://github.com/invobzvr
-// @version      0.1
+// @version      0.2
 // @description  Javascript function hook
 // @author       invobzvr
 // @homepageURL  https://github.com/invobzvr/invotoys.js/tree/main/hook.js
@@ -12,30 +12,34 @@
 (function () {
     const ORI = {};
 
+    function performHook(ori, args, params) {
+        if (typeof params.before === 'function') {
+            const ret = params.before.apply(this, [args]);
+            if (ret !== undefined) {
+                return ret;
+            }
+        }
+        let val = ori.apply(this, args);
+        if (typeof params.after === 'function') {
+            const ret = params.after.apply(this, [args, val]);
+            if (ret !== undefined) {
+                val = ret;
+            }
+        }
+        return val;
+    }
+
     Function.prototype.hook = function (params) {
         typeof params === 'function' && (params = {
             scope: window,
             before: params,
         });
         !params.scope && (params.scope = window);
-        const that = this,
-            name = that.name;
-        ORI[name] = that;
+        const ori = this,
+            name = ori.name;
+        ORI[name] = ori;
         params.scope[name] = function () {
-            if (typeof params.before === 'function') {
-                const ret = params.before.apply(this, [arguments]);
-                if (ret !== undefined) {
-                    return ret;
-                }
-            }
-            let val = that.apply(this, arguments);
-            if (typeof params.after === 'function') {
-                const ret = params.after.apply(this, [arguments, val]);
-                if (ret !== undefined) {
-                    val = ret;
-                }
-            }
-            return val;
+            return performHook.apply(this, [ori, arguments, params]);
         }
     }
 
@@ -45,20 +49,7 @@
         });
         const ori = this[prop];
         this[prop] = function () {
-            if (typeof params.before === 'function') {
-                const ret = params.before.apply(this, [arguments]);
-                if (ret !== undefined) {
-                    return ret;
-                }
-            }
-            let val = ori.apply(this, arguments);
-            if (typeof params.after === 'function') {
-                const ret = params.after.apply(this, [arguments, val]);
-                if (ret !== undefined) {
-                    val = ret;
-                }
-            }
-            return val;
+            return performHook.apply(this, [ori, arguments, params]);
         }
         this[prop].__ORI__ = ori;
     }

@@ -5,8 +5,8 @@ Javascript function hook
 
 ### Example
 ```js
-fetch.hook(function () {
-    if (arguments[0].endsWith('/log')) {
+fetch.hook(function (args) {
+    if (args[0].endsWith('/log')) {
         return new Response('{"error":0,"data":"ok"}');
     }
 });
@@ -14,8 +14,8 @@ fetch.hook(function () {
 ```js
 History.prototype.pushState.hook({
     scope: History.prototype,
-    before: function () {
-        dispatchEvent(new CustomEvent('pushstate', { detail: arguments[2] }));
+    before: function (args) {
+        dispatchEvent(new CustomEvent('pushstate', { detail: args[2] }));
     },
 });
 ```
