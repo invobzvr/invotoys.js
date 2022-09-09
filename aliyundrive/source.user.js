@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Custom aliyundrive
 // @namespace    https://github.com/invobzvr
-// @version      1.17
+// @version      1.18
 // @description  阿里云直链导出
 // @author       invobzvr
 // @match        *://www.aliyundrive.com/drive*
@@ -112,7 +112,7 @@
             setTimeout(() => document.body.dispatchEvent(new MouseEvent('mousedown', { bubbles: true })));
         },
         onPushState: function (evt) {
-            if (evt.detail === '/drive/' || evt.detail.startsWith('/drive/folder')) {
+            if (evt.detail === '/drive/' || evt.detail.startsWith('/drive/folder') || evt.detail.startsWith('/s/')) {
                 !that.listModel && that.init();
             } else {
                 that.listModel = null;
