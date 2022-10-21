@@ -2,6 +2,7 @@
 
 |Name|Description|Date|
 |-|-|-|
+|[Custom wjx_autoform](https://github.com/invobzvr/invotoys.js/tree/main/wjx_autoform)|问卷星自动表单|2022-10-21|
 |[Custom bilivideo](https://github.com/invobzvr/invotoys.js/tree/main/bilivideo)|B站(bilibili)视频扩展|2022-08-09|
 |[Box.js](https://github.com/invobzvr/invotoys.js/tree/main/box.js)|Box for `modal`/`toast`|[2022-06-25](https://greasyfork.org/zh-CN/scripts/447483)|
 |[Hook.js](https://github.com/invobzvr/invotoys.js/tree/main/hook.js)|Javascript function hook|[2022-03-14](https://greasyfork.org/zh-CN/scripts/443030)|
