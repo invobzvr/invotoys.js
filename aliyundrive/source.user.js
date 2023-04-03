@@ -74,6 +74,16 @@
                 a2Btn.title = 'Aria2';
                 a2Btn.addEventListener('click', () => that.download(that.listModel.selectedItems, that.aria2, () => [...that.listModel.selectedIds].forEach(that.listModel.removeSelect)));
                 a2Btn.addEventListener('contextmenu', evt => (evt.preventDefault(), that.configa2(true)));
+            // 添加长按事件监听器
+                let touchStartTime;
+                a2Btn.addEventListener('touchstart', () => {
+                    touchStartTime = new Date().getTime();
+                });
+                a2Btn.addEventListener('touchend', () => {
+                    if (new Date().getTime() - touchStartTime > 500) {
+                        that.configa2(true);
+                    }
+                });
             }
         },
         ddmmc: function ([mr]) {
